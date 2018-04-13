@@ -5,17 +5,14 @@ output:
     keep_md: true
 ---
 
-```{r setoptions, echo=FALSE, message=FALSE, warning=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
-library(lubridate); library(plyr); library(dplyr)
-library(ggplot2); library(timeDate)
-```
+
 
 
 
 ##Loading and Preprocessing the data
 
-```{r loading}
+
+```r
 url <- "https://d396qusza40orc.cloudfront.net/repdata%2Fdata%2Factivity.zip"
 download.file(url, destfile = "activityD.zip")
 unzip(zipfile = "activityD.zip")
@@ -27,7 +24,8 @@ activityData <- read.csv(file = "activity.csv", header = TRUE, sep = ",")
 
 ##What is mean total number of steps taken per day?
 
-```{r meanTotal}
+
+```r
 sumData <- activityData %>%
       filter(complete.cases(steps)) %>%
       group_by(date) %>%
@@ -42,21 +40,27 @@ sumData %>% ggplot(aes(x = ymd(date), y = sumPerDay, fill = month(ymd(date),
       label = TRUE))) + geom_histogram(binwidth = 5, stat = "identity") +
       labs(title = "Steps per day", x = "Day", y = "Steps") + 
       scale_fill_discrete(name = "Month")
-
 ```
 
+```
+## Warning: Ignoring unknown parameters: binwidth, bins, pad
+```
+
+![](PA1_template_files/figure-html/meanTotal-1.png)<!-- -->
 
 
-* Mean total number of steps taken per day: `r statData$meanSteps`
+
+* Mean total number of steps taken per day: 1.0766189\times 10^{4}
  
-* Median total number of steps taken per day: `r statData$medianSteps`
+* Median total number of steps taken per day: 10765
 
 
 
 
 ##What is the average daily activity pattern?
 
-```{r dailyActPat}
+
+```r
 compData <- activityData %>%
       filter(complete.cases(steps)) %>%
       group_by(interval) %>%
@@ -71,18 +75,21 @@ compData %>% ggplot(aes(x = interval, y = avg, color = "red")) +
       guides(color = "none")
 ```
 
+![](PA1_template_files/figure-html/dailyActPat-1.png)<!-- -->
+
 Which 5-minute interval, on average across all the days in the dataset, contains the maximum number of steps?
 
-5 Minute Interval: `r maxInterval$interval`
+5 Minute Interval: 835
 
-Max Average Steps Across All Days: `r maxInterval$avg`
+Max Average Steps Across All Days: 206.1698113
 
 
 
 
 ##Imputing missing values
 
-```{r missingValues}
+
+```r
 naData <- activityData %>%
       filter(!complete.cases(steps))
 
@@ -114,14 +121,19 @@ sumFilledData %>% ggplot(aes(x = ymd(date), y = sumPerDay, fill = month(ymd(date
       label = TRUE))) + geom_histogram(binwidth = 5, stat = "identity") +
       labs(title = "Steps per day", x = "Day", y = "Steps") + 
       scale_fill_discrete(name = "Month")
-
 ```
 
-- Total number of missing values: `r sumNa`
-- Mean total number of steps taken per day without NA Values: `r statData$meanSteps`
-- Median total number of steps taken per day without NA Values: `r statData$medianSteps`
-- Mean total number of steps taken per day with NA filled: `r statFilledData$meanSteps`
-- Median total number of steps taken per day with NA filled: `r statFilledData$medianSteps`
+```
+## Warning: Ignoring unknown parameters: binwidth, bins, pad
+```
+
+![](PA1_template_files/figure-html/missingValues-1.png)<!-- -->
+
+- Total number of missing values: 2304
+- Mean total number of steps taken per day without NA Values: 1.0766189\times 10^{4}
+- Median total number of steps taken per day without NA Values: 10765
+- Mean total number of steps taken per day with NA filled: 1.0766189\times 10^{4}
+- Median total number of steps taken per day with NA filled: 1.0766189\times 10^{4}
 
 
 _These values are not different as NA Values were filled with average interval values across all days. This has a low impact on values and don't change data quality._
@@ -130,7 +142,8 @@ _These values are not different as NA Values were filled with average interval v
 
 ##Are there differences in activity patterns between weekdays and weekends?
 
-```{r weekPlots}
+
+```r
 weekFilledData <- filledData %>%
       mutate(week = factor(isWeekday(as.Date(date, 
       format = "%Y-%m-%d")), levels = c(TRUE, FALSE), 
@@ -145,6 +158,8 @@ weekFilledData %>% ggplot(aes(x = interval, y = avgSteps,
       guides(color = "none") +
       facet_grid(week ~ .)
 ```
+
+![](PA1_template_files/figure-html/weekPlots-1.png)<!-- -->
 
 
 On weekdays, there is more steps registered form 0 to 1000 intervals, while one weekends has more steps registered after interval 1000.
